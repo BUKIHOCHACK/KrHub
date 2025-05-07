@@ -37,7 +37,7 @@ local function isValidKey(key)
 end
 
 function MakeScriptHub()
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub'))()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/BUKIHOCHACK/KrHub/refs/heads/main/KrHubFlee%40.lua'))()
 end
 
 OrionLib:MakeNotification({
