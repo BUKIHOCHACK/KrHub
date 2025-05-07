@@ -1,6 +1,5 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/ionlyusegithubformcmods/1-Line-Scripts/main/Mobile%20Friendly%20Orion')))()
 local Player = game.Players.LocalPlayer
-
 local Window = OrionLib:MakeWindow({
     Name = "KrHub",
     HidePremium = false,
@@ -9,17 +8,37 @@ local Window = OrionLib:MakeWindow({
     IntroText = "Loading Script..."
 })
 
+-- Tải danh sách key từ GitHub (file raw JSON)
+local function fetchKeys()
+    local url = "https://raw.githubusercontent.com/BUKIHOCHACK/KrHubKeySystem-/refs/heads/main/KeyKrHub.json" -- Đổi link này thành link raw GitHub của bạn
+    local success, response = pcall(function()
+        return game:HttpGet(url)
+    end)
+    
+    if success then
+        return game:GetService("HttpService"):JSONDecode(response).keys
+    else
+        warn("Unable to fetch keys from GitHub.")
+        return {}
+    end
+end
+
+-- Lấy danh sách key từ GitHub
+local validKeys = fetchKeys()
+
+-- Kiểm tra xem key có hợp lệ không
+local function isValidKey(key)
+    for _, validKey in ipairs(validKeys) do
+        if key == validKey then
+            return true
+        end
+    end
+    return false
+end
+
 function MakeScriptHub()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub'))()
 end
-
--- Lấy key từ GitHub
-local success, realKey = pcall(function()
-    return game:HttpGet("https://raw.githubusercontent.com/bukihochack/KrHubKeySystem-/main/key.txt")
-end)
-
-getgenv().Key = success and realKey or "INVALID_KEY"
-getgenv().KeyInput = "string"
 
 OrionLib:MakeNotification({
     Name = "Logged In!",
@@ -28,6 +47,7 @@ OrionLib:MakeNotification({
     Time = 5
 })
 
+-- Tạo giao diện Orion với textbox và nút bấm
 local Tab = Window:MakeTab({
     Name = "Key",
     Icon = "rbxassetid://4483345998",
@@ -35,39 +55,40 @@ local Tab = Window:MakeTab({
 })
 
 Tab:AddTextbox({
-    Name = "Key",
-    Default = "Enter Key.",
+    Name = "Enter Your Key",
+    Default = "Enter Key",
     TextDisappear = true,
     Callback = function(Value)
         getgenv().KeyInput = Value
-    end	  
+    end
 })
 
 Tab:AddButton({
     Name = "Check Key",
     Callback = function()
-        OrionLib:MakeNotification({
-            Name = "Checking Key",
-            Content = "Checking the key you entered...",
-            Image = "rbxassetid://4483345998",
-            Time = 5
-        })
-        wait(2)
-        if getgenv().KeyInput == getgenv().Key then
+        -- Kiểm tra key nhập vào
+        if isValidKey(getgenv().KeyInput) then
             OrionLib:MakeNotification({
                 Name = "Correct Key!",
-                Content = "The key you entered is correct.",
+                Content = "Access granted.",
                 Image = "rbxassetid://4483345998",
                 Time = 5
             })
+
+            -- Lưu key vào file KrHubKey (không có phần mở rộng)
+            if writefile then
+                writefile("KrHubKey", getgenv().KeyInput)
+            end
+
+            -- Xóa OrionLib và load Script Hub
             wait(1)
             OrionLib:Destroy()
-            wait(0.3)
+            wait(.3)
             MakeScriptHub()
         else
             OrionLib:MakeNotification({
-                Name = "Incorrect Key!",
-                Content = "The key you entered is incorrect.",
+                Name = "Incorrect Key",
+                Content = "Access denied.",
                 Image = "rbxassetid://4483345998",
                 Time = 5
             })
@@ -76,17 +97,10 @@ Tab:AddButton({
 })
 
 Tab:AddButton({
-    Name = "Copy Link GetKey",
+    Name = "Copy GetKey Link",
     Callback = function()
-        setclipboard("https://bukihochack.github.io/KrHubKeySystem-/")
-    end    
-})
-
-Tab:AddButton({
-    Name = "Discord",
-    Callback = function()
-        setclipboard("Nope")
-    end    
+        setclipboard("https://yourdomain.com") -- Thay link của bạn ở đây
+    end
 })
 
 OrionLib:Init()
